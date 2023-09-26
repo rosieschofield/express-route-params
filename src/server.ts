@@ -34,19 +34,52 @@ app.get("/echo/:exampleRouteParameter", (req, res) => {
   });
 });
 
-app.get("/multiply/:numOne/:numTwo", (req, res) => {
-  /**
-   * Note that `numOne` and `numTwo` are both typed as string.
-   * (Hover over with your mouse to see!)
-   *
-   * Route params are, by default, typed as strings when they
-   * are parsed by Express.
-   */
-  const { numOne, numTwo } = req.params;
-  const multiplication = parseInt(numOne) * parseInt(numTwo);
+app.get<{ shoutable: string }>("/shout/:shoutable", (req, res) => {
+  const shoutIt = req.params.shoutable;
   res.json({
-    original: `${numOne} x ${numTwo}`,
-    result: multiplication,
+    shout: shoutIt,
+    result: `I am shouting back to you: ${shoutIt}!`,
+  });
+});
+
+app.get<{ numOne: number; numTwo: number }>(
+  "/multiply/:numOne/:numTwo",
+  (req, res) => {
+    /**
+     * Note that `numOne` and `numTwo` are both typed as string.
+     * (Hover over with your mouse to see!)
+     *
+     * Route params are, by default, typed as strings when they
+     * are parsed by Express.
+     */
+    const { numOne, numTwo } = req.params;
+    const multiplication = numOne * numTwo;
+    //const multiplication = parseInt(numOne) * parseInt(numTwo);
+    res.json({
+      original: `${numOne} x ${numTwo}`,
+      result: multiplication,
+    });
+  }
+);
+
+app.get("/add/:numOne/:numTwo/:numThree?", (req, res) => {
+  const addition = req.params.numThree
+    ? parseInt(req.params.numOne) +
+      parseInt(req.params.numTwo) +
+      parseInt(req.params.numThree)
+    : parseInt(req.params.numOne) + parseInt(req.params.numTwo);
+  res.json({
+    original: req.params.numThree
+      ? `${req.params.numOne} + ${req.params.numTwo} + ${req.params.numThree}`
+      : `${req.params.numOne} + ${req.params.numTwo}`,
+    result: addition,
+  });
+});
+
+app.get<{ food: string }>("/eat/:food", (req, res) => {
+  const prefix = req.params.food.match(/^[aeiou]/) ? "an" : "a";
+  res.json({
+    message: `Yum yum - you ate ${prefix} ${req.params.food}!`,
   });
 });
 
@@ -72,7 +105,7 @@ app.get<{ name: string }>("/happy-birthday/:name", (req, res) => {
 });
 
 // using 4000 by convention, but could be changed
-const PORT_NUMBER = 4000;
+const PORT_NUMBER = 5050;
 
 app.listen(PORT_NUMBER, () => {
   console.log(`Server is listening on ${PORT_NUMBER}`);
